@@ -69,7 +69,6 @@ function addToFavourites(itemId, starIcon)
     })
     .then(response => {
         if (response.ok) {
-            // Toggle star appearance
             if (starIcon.classList.contains('far')) {
                 starIcon.classList.remove('far');
                 starIcon.classList.add('fas');
@@ -94,7 +93,6 @@ function deleteFromFavourites(itemId, starIcon)
     })
     .then(response => {
         if (response.ok) {
-            // Toggle star appearance
             if (starIcon.classList.contains('fas')) {
                 starIcon.classList.remove('fas');
                 starIcon.classList.add('far');
