@@ -1,0 +1,264 @@
+{% extends "Navbar.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Team Fortress 2 Items Management</h2><br>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addItemModal">Add Item <i class="fas fa-plus"></i></button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Type</th>
+                <th>Quality</th>
+                <th>Craftable</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Row Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="addItemModalLabel">Add Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="addRowForm">
+                <div class="mb-3">
+                    <label for="nameInput" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="nameInput" required>
+                </div>
+                <div class="mb-3">
+                    <label for="classSelect" class="form-label">Class</label>
+                    <select class="form-select" id="classSelect" required>
+                        <option value="Scout">Scout</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="typeSelect" class="form-label">Type</label>
+                    <select class="form-select" id="typeSelect" required>
+                        <option value="Cosmetic">Cosmetic</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="craftableSelect" class="form-label">Craftable</label>
+                    <select class="form-select" id="craftableSelect" required>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="qualitySelect" class="form-label">Quality</label>
+                    <select class="form-select" id="qualitySelect" required>
+                        <option value="Unique">Unique</option>
+                        <option value="Genuine">Genuine</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="imageInput" class="form-label">Image URL</label>
+                    <input type="url" class="form-control" id="imageInput" required>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="addItem()">Add Item</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="editRowForm">
+                <div class="mb-3">
+                    <label for="editNameInput" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="editNameInput" required>
+                </div>
+                <div class="mb-3">
+                    <label for="editClassSelect" class="form-label">Class</label>
+                    <select class="form-select" id="editClassSelect" required>
+                        <option value="Scout">Scout</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="editTypeSelect" class="form-label">Type</label>
+                    <select class="form-select" id="editTypeSelect" required>
+                        <option value="Cosmetic">Cosmetic</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="editCraftableSelect" class="form-label">Craftable</label>
+                    <select class="form-select" id="editCraftableSelect" required>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="editQualitySelect" class="form-label">Quality</label>
+                    <select class="form-select" id="editQualitySelect" required>
+                        <option value="Unique">Unique</option>
+                        <option value="Genuine">Genuine</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="editImageInput" class="form-label">Image URL</label>
+                    <input type="url" class="form-control" id="editImageInput" required>
+                </div>
+                <input type="hidden" id="editItemId">
+                <button type="button" class="btn btn-primary" onclick="editRowSubmit()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+<script>
+    function fetchData() {
+        fetch(`http://127.0.0.1:5000/items`)
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                const tableBody = document.getElementById('table-body');
+                tableBody.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = `
+                        <tr class="align-middle">
+                            <td hidden>${item._id}</td>
+                            <td><img width = '50px' height = '50px' src="${item.image}"></td>
+                            <td>${item.name}</td>
+                            <td>${item.class}</td>
+                            <td>${item.type}</td>
+                            <td>${item.quality}</td>
+                            <td>${item.craftable}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="editRow(this)"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteRow('${item._id}')"> <i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            });
+    }
+
+    function addItem() {
+        const name = document.getElementById('nameInput').value;
+        const classValue = document.getElementById('classSelect').value;
+        const type = document.getElementById('typeSelect').value;
+        const craftable = document.getElementById('craftableSelect').value;
+        const quality = document.getElementById('qualitySelect').value;
+        const imageUrl = document.getElementById('imageInput').value;
+
+        const newData = {
+            name: name,
+            class: classValue,
+            type: type,
+            craftable: craftable,
+            quality: quality,
+            image: imageUrl
+        };
+
+        fetch('http://localhost:5000/item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            $('#addItemModal').modal('hide');
+            fetchData();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function editRow(button) {
+        const row = button.closest('tr');
+
+        const itemId = row.cells[0].innerText;
+        const name = row.cells[2].innerText;
+        const classValue = row.cells[3].innerText;
+        const type = row.cells[4].innerText;
+        const quality = row.cells[5].innerText;
+        const craftable = row.cells[6].innerText;
+        const imageUrl = row.cells[1].querySelector('img').getAttribute('src');
+
+        document.getElementById('editNameInput').value = name;
+        document.getElementById('editClassSelect').value = classValue;
+        document.getElementById('editTypeSelect').value = type;
+        document.getElementById('editCraftableSelect').value = craftable;
+        document.getElementById('editQualitySelect').value = quality;
+        document.getElementById('editImageInput').value = imageUrl;
+        document.getElementById('editItemId').value = itemId;
+
+        $('#editItemModal').modal('show');
+    }
+
+    function editRowSubmit()
+    {
+        const itemId = document.getElementById('editItemId').value;
+        const name = document.getElementById('editNameInput').value;
+        const classValue = document.getElementById('editClassSelect').value;
+        const type = document.getElementById('editTypeSelect').value;
+        const craftable = document.getElementById('editCraftableSelect').value;
+        const quality = document.getElementById('editQualitySelect').value;
+        const imageUrl = document.getElementById('editImageInput').value;
+
+        const updatedItem = {
+            name: name,
+            class: classValue,
+            type: type,
+            craftable: craftable,
+            quality: quality,
+            image: imageUrl
+        };
+
+        fetch(`http://127.0.0.1:5000/item/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedItem)
+        })
+        .then(response => response.json())
+        .then(data => {
+            $('#editItemModal').modal('hide');
+            fetchData();
+        })
+        .catch(error => {
+            console.error('Error updating item:', error);
+        });
+    }
+
+    function deleteRow(id) {
+        fetch(`http://127.0.0.1:5000/item/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => fetchData());
+    }
+
+    fetchData();
+</script>
+{% endblock %}
