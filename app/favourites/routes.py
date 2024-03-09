@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
 from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
+from app.middleware import check_session_middleware
 
 favourites_bp = Blueprint('favourites', __name__)
 
@@ -13,6 +14,7 @@ collectionUser = db["users"]
 
 
 @favourites_bp.route('/favourite', methods=['POST'])
+@check_session_middleware
 def add_favourite():
     data = request.get_json()
     # Extract data from JSON payload
@@ -33,6 +35,7 @@ def add_favourite():
 
 
 @favourites_bp.route('/favourite', methods=['DELETE'])
+@check_session_middleware
 def delete_favourite():
     data = request.get_json()
     # Extract data from JSON payload
@@ -53,6 +56,7 @@ def delete_favourite():
 
 
 @favourites_bp.route('/favourites/<string:id>', methods=['GET'])
+@check_session_middleware
 def get_user_favourite(id):
     user = collectionUser.find_one({"_id": ObjectId(id)})
     if user:
@@ -65,6 +69,7 @@ def get_user_favourite(id):
 
 
 @favourites_bp.route('/favourite/<string:id>', methods=['DELETE'])
+@check_session_middleware
 def delete(id):
     result = collection.delete_one({"_id": ObjectId(id)})
     if result.deleted_count > 0:

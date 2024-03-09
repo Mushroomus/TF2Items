@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
+from app.middleware import check_session_middleware
 
 items_bp = Blueprint('items', __name__)
 
@@ -13,6 +14,7 @@ collectionUser = db["users"]
 
 
 @items_bp.route('/item', methods=['POST'])
+@check_session_middleware
 def create():
     data = request.json
     required_fields = ["name", "type", "class", "quality", "craftable"]
@@ -30,6 +32,7 @@ def create():
 
 
 @items_bp.route('/items', methods=['GET'])
+@check_session_middleware
 def read_all():
     documents = list(collection.find())
 
@@ -40,6 +43,7 @@ def read_all():
 
 
 @items_bp.route('/item/<string:id>', methods=['PUT'])
+@check_session_middleware
 def update(id):
     data = request.json
     if data:
@@ -53,6 +57,7 @@ def update(id):
 
 
 @items_bp.route('/item/favourites/<string:id>', methods=['GET'])
+@check_session_middleware
 def get_item_favourites(id):
     try:
         # Perform aggregation

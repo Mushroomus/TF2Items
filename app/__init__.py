@@ -2,7 +2,6 @@ from flask import Flask
 from flask_cors import CORS
 from app.users.routes import users_bp
 from app.items.routes import items_bp
-from app.favourites.routes import favourites_bp
 from app.files.routes import files_bp
 
 app = Flask(__name__)

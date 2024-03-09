@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
+from app.middleware import check_session_middleware
 
 users_bp = Blueprint('users', __name__)
 
@@ -9,7 +10,7 @@ db = client["tf"]
 collection = db["users"]
 
 
-@users_bp.route('/register', methods=['POST'])
+@users_bp.route('/register', methods=['POST'], endpoint="register_user")
 def register():
     data = request.json
     if data:
@@ -29,7 +30,7 @@ def register():
         return jsonify({"error": "No data provided"}), 400
 
 
-@users_bp.route('/login', methods=['POST'])
+@users_bp.route('/login', methods=['POST'], endpoint="login_user")
 def login():
     data = request.json
     if data:
@@ -49,7 +50,8 @@ def login():
         return jsonify({"error": "No data provided"}), 400
 
 
-@users_bp.route('/logout', methods=['GET'])
+@users_bp.route('/logout', methods=['GET'], endpoint="logout_user")
+@check_session_middleware
 def logout():
     session.pop('username', None)
     session.pop('admin', None)
