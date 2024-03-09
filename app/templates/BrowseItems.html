@@ -21,15 +21,14 @@
     let favouriteItems = [];
 
     function fetchFavourite() {
-        if (!userId) {
+        if (!userId)
             return;
-        }
 
         fetch(`http://127.0.0.1:5000/favourites/${userId}`)
         .then(response => {
-            if (!response.ok) {
+            if (!response.ok)
                 throw new Error('Network response was not ok');
-            }
+
             return response.json();
         })
         .then(data => {
@@ -39,44 +38,26 @@
         .catch(error => { console.error('Error fetching favorite item:', error); });
     }
 
-
-    function fetchData() {
-        fetch(`http://127.0.0.1:5000/items`)
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                const tableBody = document.getElementById('table-body');
-                tableBody.innerHTML = '';
-
-                data.forEach(item => {
-                    let isFavorite = false;
-
-                    for (let i = 0; i < favoriteItems.length; i++) {
-                        const favouriteItem = favoriteItems[i];
-                        if(favouriteItem === item._id)
-                        {
-                            isFavorite = true;
-                            break;
-                        }
-                    }
-
-                    const row = `
-                        <tr class="align-middle">
-                            <td hidden>${item._id}</td>
-                            <td><img width = '50px' height = '50px' src="${item.image}"></td>
-                            <td>${item.name}</td>
-                            <td>
-                                <i class="${isFavorite ? 'fas' : 'far'} fa-star" data-item-id="${item._id}" onclick="toggleFavorite(this)"></i>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-            });
-    }
-
-
+  function fetchData() {
+    fetch(`http://127.0.0.1:5000/items`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = data.map(item => {
+                const isFavorite = favoriteItems.includes(item._id);
+                return `
+                    <tr class="align-middle">
+                        <td hidden>${item._id}</td>
+                        <td><img width="50px" height="50px" src="${item.image}"></td>
+                        <td>${item.name}</td>
+                        <td>
+                            <i class="${isFavorite ? 'fas' : 'far'} fa-star" data-item-id="${item._id}" onclick="toggleFavorite(this)"></i>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        });
+}
 function addToFavourites(itemId, starIcon)
 {
     fetch(`http://127.0.0.1:5000/favourite`, {
@@ -96,9 +77,8 @@ function addToFavourites(itemId, starIcon)
                 starIcon.classList.remove('fas');
                 starIcon.classList.add('far');
             }
-        } else {
+        } else
             console.error('Failed to mark item as favorite');
-        }
     })
     .catch(error => { console.error('Error:', error); });
 }
@@ -122,9 +102,8 @@ function deleteFromFavourites(itemId, starIcon)
                 starIcon.classList.remove('far');
                 starIcon.classList.add('fas');
             }
-        } else {
+        } else
             console.error('Failed to mark item as not favorite');
-        }
     })
     .catch(error => { console.error('Error:', error); });
 }
@@ -132,10 +111,8 @@ function deleteFromFavourites(itemId, starIcon)
 function toggleFavorite(starIcon) {
     const itemId = starIcon.dataset.itemId;
     const isFavorite = starIcon.classList.contains('fas');
-
     isFavorite === true ? deleteFromFavourites(itemId, starIcon) : addToFavourites(itemId, starIcon);
 }
-
 fetchFavourite();
 </script>
 {% endblock %}

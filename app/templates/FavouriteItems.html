@@ -18,38 +18,25 @@
     const userId = localStorage.getItem('userID');
 
     function fetchData() {
-        fetch(`http://127.0.0.1:5000/item/favourites/${userId}`)
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                const tableBody = document.getElementById('table-body');
-                tableBody.innerHTML = '';
-
-                if (data.length === 0) {
-                    const row = `
-                        <tr class="align-middle">
-                            <td colspan="7">
-                                <span class="text-muted">No Favourite Items</span>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML = row;
-                } else {
-                    data.forEach(item => {
-                        const row = `
-                            <tr class="align-middle">
-                                <td hidden>${item._id}</td>
-                                <td><img width = '50px' height = '50px' src="${item.image}"></td>
-                                <td>${item.name}</td>
-                            </tr>
-                        `;
-                        tableBody.innerHTML += row;
-                    });
-                }
+    fetch(`http://127.0.0.1:5000/item/favourites/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = data.length === 0 ?
+                `<tr class="align-middle">
+                    <td colspan="7">
+                        <span class="text-muted">No Favourite Items</span>
+                    </td>
+                </tr>` :
+                data.map(item => `
+                    <tr class="align-middle">
+                        <td hidden>${item._id}</td>
+                        <td><img width="50px" height="50px" src="${item.image}"></td>
+                        <td>${item.name}</td>
+                    </tr>`
+                ).join('');
         });
-    }
-
-    fetchData()
+}
+fetchData()
 </script>
 {% endblock %}

@@ -20,9 +20,7 @@
 <body>
   <div class="container">
     <h1 class="text-center mb-4">Register</h1>
-
     <div class="alert alert-primary" role="alert" id="alert" hidden></div>
-
     <form id="registerForm">
       <div class="mb-3">
         <label for="inputUsername" class="form-label">Username</label>
@@ -45,7 +43,7 @@
   <script>
     function Register()
     {
-     const alertElement = document.getElementById('alert');
+      const alertElement = document.getElementById('alert');
 
       const username = document.getElementById('inputUsername').value;
       const password = document.getElementById('inputPassword').value;
@@ -76,9 +74,7 @@
             alertElement.hidden = false;
         }
       })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+      .catch(error => { console.error('Error:', error); });
     }
   </script>
 </body>
