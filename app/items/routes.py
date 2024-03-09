@@ -17,7 +17,7 @@ collectionUser = db["users"]
 @check_session_middleware
 def create():
     data = request.json
-    required_fields = ["name", "type", "class", "quality", "craftable"]
+    required_fields = ["name"]
 
     if data:
         # Check if all required fields are present
@@ -31,7 +31,7 @@ def create():
         return jsonify({"error": "No data provided"}), 400
 
 
-@items_bp.route('/items', methods=['GET'])
+@items_bp.route('/items', methods=['GET'], endpoint="get_items")
 @check_session_middleware
 def read_all():
     documents = list(collection.find())
@@ -42,7 +42,7 @@ def read_all():
     return jsonify(documents), 200
 
 
-@items_bp.route('/item/<string:id>', methods=['PUT'])
+@items_bp.route('/item/<string:id>', methods=['PUT'], endpoint="put_item")
 @check_session_middleware
 def update(id):
     data = request.json
@@ -56,7 +56,17 @@ def update(id):
         return jsonify({"error": "No data provided"}), 400
 
 
-@items_bp.route('/item/favourites/<string:id>', methods=['GET'])
+@items_bp.route('/item/<string:id>', methods=['DELETE'], endpoint="delete_item")
+@check_session_middleware
+def delete(id):
+    result = collection.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count > 0:
+        return jsonify({"message": "Document deleted successfully"}), 200
+    else:
+        return jsonify({"error": "Document not found"}), 404
+
+
+@items_bp.route('/item/favourites/<string:id>', methods=['GET'], endpoint="get_favourites_item")
 @check_session_middleware
 def get_item_favourites(id):
     try:
@@ -72,11 +82,7 @@ def get_item_favourites(id):
             }},
             {"$project": {
                 "_id": 0,
-                 "name": {"$arrayElemAt": ["$itemDetails.name", 0]},
-                "type": {"$arrayElemAt": ["$itemDetails.type", 0]},
-                "class": {"$arrayElemAt": ["$itemDetails.class", 0]},
-                "quality": {"$arrayElemAt": ["$itemDetails.quality", 0]},
-                "craftable": {"$arrayElemAt": ["$itemDetails.craftable", 0]},
+                "name": {"$arrayElemAt": ["$itemDetails.name", 0]},
                 "image": {"$arrayElemAt": ["$itemDetails.image", 0]}
             }}
         ]

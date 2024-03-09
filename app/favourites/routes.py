@@ -13,7 +13,7 @@ collection = db["items"]
 collectionUser = db["users"]
 
 
-@favourites_bp.route('/favourite', methods=['POST'])
+@favourites_bp.route('/favourite', methods=['POST'], endpoint="post_favourite")
 @check_session_middleware
 def add_favourite():
     data = request.get_json()
@@ -35,7 +35,6 @@ def add_favourite():
 
 
 @favourites_bp.route('/favourite', methods=['DELETE'])
-@check_session_middleware
 def delete_favourite():
     data = request.get_json()
     # Extract data from JSON payload
@@ -55,7 +54,7 @@ def delete_favourite():
         return jsonify({"error": "User not found"}), 404
 
 
-@favourites_bp.route('/favourites/<string:id>', methods=['GET'])
+@favourites_bp.route('/favourites/<string:id>', methods=['GET'], endpoint="get_favourite")
 @check_session_middleware
 def get_user_favourite(id):
     user = collectionUser.find_one({"_id": ObjectId(id)})
@@ -66,13 +65,3 @@ def get_user_favourite(id):
         return jsonify({"favorites": favorites_str}), 200
     else:
         return jsonify({"error": "User not found"}), 404
-
-
-@favourites_bp.route('/favourite/<string:id>', methods=['DELETE'])
-@check_session_middleware
-def delete(id):
-    result = collection.delete_one({"_id": ObjectId(id)})
-    if result.deleted_count > 0:
-        return jsonify({"message": "Document deleted successfully"}), 200
-    else:
-        return jsonify({"error": "Document not found"}), 404
