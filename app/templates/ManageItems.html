@@ -70,38 +70,28 @@
 
 <script>
     function fetchData() {
-        fetch(`http://127.0.0.1:5000/items`)
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                const tableBody = document.getElementById('table-body');
-                tableBody.innerHTML = '';
-
-                data.forEach(item => {
-                    const row = `
-                        <tr class="align-middle">
-                            <td hidden>${item._id}</td>
-                            <td><img width = '50px' height = '50px' src="${item.image}"></td>
-                            <td>${item.name}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm" onclick="editRow(this)"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteRow('${item._id}')"> <i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-            });
+         fetch('http://127.0.0.1:5000/items')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = data.map(item => `
+                <tr class="align-middle">
+                    <td hidden>${item._id}</td>
+                    <td><img width="50px" height="50px" src="${item.image}"></td>
+                    <td>${item.name}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editRow(this)"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteRow('${item._id}')"> <i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        });
     }
 
     function addItem() {
-        const name = document.getElementById('nameInput').value;
-        const imageUrl = document.getElementById('imageInput').value;
-
         const newData = {
-            name: name,
-            image: imageUrl
+            name: document.getElementById('nameInput').value,
+            image: document.getElementById('imageInput').value
         };
 
         fetch('http://127.0.0.1:5000/item', {
@@ -116,37 +106,27 @@
             $('#addItemModal').modal('hide');
             fetchData();
         })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        .catch(error => { console.error('Error:', error); });
     }
 
     function editRow(button) {
         const row = button.closest('tr');
 
-        const itemId = row.cells[0].innerText;
-        const imageUrl = row.cells[1].querySelector('img').getAttribute('src');
-        const name = row.cells[2].innerText;
-
-        document.getElementById('editNameInput').value = name;
-        document.getElementById('editImageInput').value = imageUrl;
-        document.getElementById('editItemId').value = itemId;
+        document.getElementById('editNameInput').value = row.cells[2].innerText;
+        document.getElementById('editImageInput').value = row.cells[1].querySelector('img').getAttribute('src');
+        document.getElementById('editItemId').value = row.cells[0].innerText;
 
         $('#editItemModal').modal('show');
     }
 
     function editRowSubmit()
     {
-        const itemId = document.getElementById('editItemId').value;
-        const name = document.getElementById('editNameInput').value;
-        const imageUrl = document.getElementById('editImageInput').value;
-
         const updatedItem = {
-            name: name,
-            image: imageUrl
+            name: document.getElementById('editNameInput').value,
+            image: document.getElementById('editImageInput').value
         };
 
-        fetch(`http://127.0.0.1:5000/item/${itemId}`, {
+        fetch(`http://127.0.0.1:5000/item/${document.getElementById('editItemId').value}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -158,9 +138,7 @@
             $('#editItemModal').modal('hide');
             fetchData();
         })
-        .catch(error => {
-            console.error('Error updating item:', error);
-        });
+        .catch(error => { console.error('Error updating item:', error); });
     }
 
     function deleteRow(item_id) {
@@ -173,7 +151,6 @@
         .then(response => response.json())
         .then(data => fetchData());
     }
-
     fetchData();
 </script>
 {% endblock %}
