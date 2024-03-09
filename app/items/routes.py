@@ -17,11 +17,17 @@ collectionUser = db["users"]
 @check_session_middleware
 def create():
     data = request.json
-    required_fields = ["name"]
+    required_fields = ["name", "image"]
 
     if data:
         # Check if all required fields are present
         if all(field in data for field in required_fields):
+            # Check if an item with the same name already exists
+            existing_item = collection.find_one({"name": data["name"]})
+            if existing_item:
+                return jsonify({"message": "Item with this name already exists"}), 400
+
+            # If item doesn't exist, insert it into the database
             result = collection.insert_one(data)
             return jsonify({"message": "Document created successfully", "id": str(result.inserted_id)}), 201
         else:
