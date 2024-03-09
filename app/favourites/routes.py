@@ -24,6 +24,10 @@ def add_favourite():
     # Check if user exists in the database
     user = collectionUser.find_one({"_id": ObjectId(user_id)})
     if user:
+        # Check if the item is already in the user's favorites
+        if ObjectId(item_id) in user.get('favorites', []):
+            return jsonify({"message": "Item already in favorites"}), 400
+
         # Update user's favorites in the database
         collectionUser.update_one(
             {"_id": ObjectId(user_id)},
@@ -44,12 +48,16 @@ def delete_favourite():
     # Check if user exists in the database
     user = collectionUser.find_one({"_id": ObjectId(user_id)})
     if user:
+        # Check if the item is already in the user's favorites
+        if not ObjectId(item_id) in user.get('favorites', []):
+            return jsonify({"message": "Item already not in favorites"}), 400
+
         # Update user's favorites in the database
         collectionUser.update_one(
             {"_id": ObjectId(user_id)},
             {"$pull": {"favorites": ObjectId(item_id)}}
         )
-        return jsonify({"message": "Item added to favorites successfully"}), 200
+        return jsonify({"message": "Item deleted from favorites successfully"}), 200
     else:
         return jsonify({"error": "User not found"}), 404
 
