@@ -1,11 +1,15 @@
+import os
+from dotenv import load_dotenv
 from flask import Blueprint, request, jsonify, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
 from app.middleware import check_session_middleware
 
+load_dotenv()
 users_bp = Blueprint('users', __name__)
 
-client = MongoClient("mongodb+srv://test:test@cluster0.jjgvxkt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongo_client_url = os.environ.get('MONGO_CLIENT_URL')
+client = MongoClient(mongo_client_url)
 db = client["tf"]
 collection = db["users"]
 
