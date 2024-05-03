@@ -52,11 +52,30 @@ def read_all():
     return jsonify(documents), 200
 
 
+@items_bp.route('/item/<string:id>', methods=['PUT'], endpoint="put_item")
+@check_session_middleware
+def update(id):
+    data = request.json
+    if data:
+        result = collection.update_one({"_id": ObjectId(id)}, {"$set": data})
+        if result.modified_count > 0:
+            return jsonify({"message": "Document updated successfully"}), 200
+        else:
+            return jsonify({"error": "Document not found"}), 404
+    else:
+        return jsonify({"error": "No data provided"}), 400
+
+
 @items_bp.route('/item/<string:id>', methods=['DELETE'], endpoint="delete_item")
 @check_session_middleware
 def delete(id):
     result = collection.delete_one({"_id": ObjectId(id)})
     if result.deleted_count > 0:
+        # Remove the id from favorites array of all users
+        collectionUser.update_many(
+            {"favorites": ObjectId(id)},
+            {"$pull": {"favorites": ObjectId(id)}}
+        )
         return jsonify({"message": "Document deleted successfully"}), 200
     else:
         return jsonify({"error": "Document not found"}), 404

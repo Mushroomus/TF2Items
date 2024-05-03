@@ -17,6 +17,32 @@
     </table>
 </div>
 
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="editRowForm">
+                <div class="mb-3">
+                    <label for="editNameInput" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="editNameInput" required>
+                </div>
+                <div class="mb-3">
+                    <label for="editImageInput" class="form-label">Image URL</label>
+                    <input type="url" class="form-control" id="editImageInput" required>
+                </div>
+                <input type="hidden" id="editItemId">
+                <button type="button" class="btn btn-primary" onclick="editRowSubmit()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -53,6 +79,7 @@
                     <td><img width="50px" height="50px" src="${item.image}"></td>
                     <td>${item.name}</td>
                     <td>
+                        <button class="btn btn-primary btn-sm" onclick="editRow(this)"> <i class="fas fa-pencil-alt"></i></button>
                         <button class="btn btn-danger btn-sm" onclick="deleteRow('${item._id}')"> <i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
@@ -81,6 +108,38 @@
             fetchData();
         })
         .catch(error => { console.error('Error:', error); });
+    }
+
+    function editRow(button) {
+        const row = button.closest('tr');
+
+        document.getElementById('editNameInput').value = row.cells[2].innerText;
+        document.getElementById('editImageInput').value = row.cells[1].querySelector('img').getAttribute('src');
+        document.getElementById('editItemId').value = row.cells[0].innerText;
+
+        $('#editItemModal').modal('show');
+    }
+
+    function editRowSubmit()
+    {
+        const updatedItem = {
+            name: document.getElementById('editNameInput').value,
+            image: document.getElementById('editImageInput').value
+        };
+
+        fetch(`http://127.0.0.1:5000/item/${document.getElementById('editItemId').value}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedItem)
+        })
+        .then(response => response.json())
+        .then(data => {
+            $('#editItemModal').modal('hide');
+            fetchData();
+        })
+        .catch(error => { console.error('Error updating item:', error); });
     }
 
     function deleteRow(item_id) {

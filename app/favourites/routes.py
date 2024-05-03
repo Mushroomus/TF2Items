@@ -43,6 +43,7 @@ def add_favourite():
 
 
 @favourites_bp.route('/favourite', methods=['DELETE'])
+@check_session_middleware
 def delete_favourite():
     data = request.get_json()
     # Extract data from JSON payload

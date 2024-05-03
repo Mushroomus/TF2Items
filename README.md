@@ -17,6 +17,8 @@ This guide will help you set up and run the application locally using Docker.
    - `MONGO_CLIENT_URL`: MongoDB connection URL
    - `SECRET_KEY`: Secret key for Flask session management
 
+**In the private repository .env file is already delivered to test application**
+
 ## Building and Running
 
 1. Open the built-in terminal in your IDE.
@@ -27,3 +29,38 @@ This guide will help you set up and run the application locally using Docker.
     ```bash
     docker container run -d -p 5000:5000 tf2items-app
 4. Open the application in your web browser by navigating to: http://127.0.0.1:5000/
+
+## Test login data
+Admin and User has different functionality
+
+**Admin**
+- Username: admin
+- Password: admin
+
+**User** 
+- Username: user
+- Password: user
+
+## Mongodb collections
+**items**
+
+```
+{
+  "_id": "ObjectId",
+  "name": "string",
+  "image": "string"
+}
+```
+
+**users**
+
+```
+{
+  "_id": "ObjectId",
+  "username": "string",
+  "password": "string",
+  "admin": "boolean",
+  "favorites": "array"
+}
+```
+Admin doesn't have "favourites" array
